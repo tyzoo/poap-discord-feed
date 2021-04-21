@@ -1,4 +1,5 @@
 require("dotenv").config();
+
 //set the enviornment variables in a .env file
 const {
   DISCORD_TOKEN,
@@ -19,6 +20,19 @@ const Discord = require("discord.js");
 // Networks availables
 const XDAI_NETWORK = "XDAI";
 const MAINNET_NETWORK = "MAINNET";
+const MINT_ACTION = "MINT";
+const TRANSFER_ACTION = "TRANSFER";
+const BURN_ACTION = "BURN";
+
+const options = {
+  // Enable auto reconnection
+  reconnect: {
+    auto: true,
+    delay: 5000, // ms
+    maxAttempts: 20,
+    onTimeout: false,
+  },
+};
 
 const bot = new Discord.Client();
 
@@ -32,12 +46,14 @@ const start = () => {
   console.log("Starting to listen POAP events...");
   console.log("+*+*+*+*+*+*+*+*+*+*+*+*+*+*+");
 
-  const web3 = new Web3(new Web3.providers.WebsocketProvider(XDAI_WS_PROVIDER));
+  const web3xDai = new Web3(
+    new Web3.providers.WebsocketProvider(XDAI_WS_PROVIDER, options)
+  );
   const web3Mainnet = new Web3(
-    new Web3.providers.WebsocketProvider(MAINNET_WS_PROVIDER)
+    new Web3.providers.WebsocketProvider(MAINNET_WS_PROVIDER, options)
   );
 
-  subscribeToTransfer(web3, POAP_XDAI_CONTRACT, XDAI_NETWORK);
+  subscribeToTransfer(web3xDai, POAP_XDAI_CONTRACT, XDAI_NETWORK);
   subscribeToTransfer(web3Mainnet, POAP_XDAI_CONTRACT, MAINNET_NETWORK);
 };
 
@@ -59,33 +75,36 @@ const subscribeToTransfer = (web3, address, network) => {
 
       // mint
       // transfer
-      const action = fromAddress == ZEROX ? "MINT" : "TRANSFER";
+      // burn
+      const action =
+        fromAddress == ZEROX
+          ? MINT_ACTION
+          : toAddress == ZEROX
+          ? BURN_ACTION
+          : TRANSFER_ACTION;
 
-      logPoap(
-        tokenInfo.image_url,
-        action,
-        tokenId,
-        tokenInfo.id,
-        tokenInfo.name,
-        toAddress,
-        tokenInfo.poapPower,
-        tokenInfo.ens,
-        network
-      );
+      if (tokenInfo && tokenInfo.image_url) {
+        logPoap(
+          tokenInfo.image_url,
+          action,
+          tokenId,
+          tokenInfo.id,
+          tokenInfo.name,
+          toAddress,
+          tokenInfo.poapPower,
+          tokenInfo.ens,
+          network
+        );
+      }
     })
     .on("connected", (subscriptionId) => {
       console.log(`Connected to ${network} - ${subscriptionId} `);
     })
     .on("changed", (log) => {
-      console.log(`Connected to ${network} - ${log} `);
+      console.log(`Changed to ${network} - ${log} `);
     })
     .on("error", (error) => {
-      console.log(error);
-      console.log(`Reconnecting to ${network} `);
-      setTimeout(() => {
-        // Well we have problems
-        console.log(`Houston to ${network} `);
-      }, 5000);
+      console.log(`Error to ${network} - ${error} `);
     });
 };
 
