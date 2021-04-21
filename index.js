@@ -174,6 +174,7 @@ const logPoap = async (
       { name: "Token ID", value: `#${tokenId}`, inline: true },
       { name: "Event ID", value: `#${eventId}`, inline: true }
     )
+	.setURL(`https://poap.gallery/event/${eventId}/?utm_share=discordfeed`)
     .setTimestamp()
     .setAuthor(
       ens ? ens : address,
