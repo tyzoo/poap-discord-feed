@@ -179,7 +179,7 @@ const logPoap = async (
     .setAuthor(
       ens ? ens : address,
       `https://blockies.shipchain.io/${address}.png?size=small`,
-      `https://app.poap.xyz/scan/${address}`
+      `https://app.poap.xyz/scan/${address}/?utm_share=discordfeed`
     )
     .setThumbnail(imageUrl);
   channel.send(embed);
