@@ -177,7 +177,7 @@ const logPoap = async (
 	.setURL(`https://poap.gallery/event/${eventId}/?utm_share=discordfeed`)
     .setTimestamp()
     .setAuthor(
-      ens ? ens : address,
+      ens ? ens : address.toLowerCase(),
       ``,
       `https://app.poap.xyz/scan/${address}/?utm_share=discordfeed`
     )
