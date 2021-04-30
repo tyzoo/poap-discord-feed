@@ -58,6 +58,7 @@ const start = () => {
 };
 
 const subscribeToTransfer = (web3, address, network) => {
+  let lastHash = ""
   console.log(`Subscribing to ${network} - ${address} `);
   const PoapContract = new web3.eth.Contract(PoapAbi, address);
   PoapContract.events
@@ -83,7 +84,7 @@ const subscribeToTransfer = (web3, address, network) => {
           ? BURN_ACTION
           : TRANSFER_ACTION;
 
-      if (tokenInfo && tokenInfo.image_url) {
+      if (tokenInfo && tokenInfo.image_url && lastHash != txHash) {
         logPoap(
           tokenInfo.image_url,
           action,
@@ -95,6 +96,7 @@ const subscribeToTransfer = (web3, address, network) => {
           tokenInfo.ens,
           network
         );
+        lastHash = txHash
       }
     })
     .on("connected", (subscriptionId) => {
